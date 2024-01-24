@@ -1,5 +1,6 @@
 #include <QApplication>
 #include <QMainWindow>
+#include <QDebug>
 
 #include "blur_effect.h"
 #include "drag_move_widget.h"
