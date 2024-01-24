@@ -22,7 +22,7 @@ public:
         QPixmap pixmap;
         QPoint offset;
         double scale = painter->device()->devicePixelRatio();
-        QRectF rect = this->sourceBoundingRect(Qt::DeviceCoordinates);
+        QRectF rect = sourceBoundingRect(Qt::DeviceCoordinates);
         // rect.adjust(-blur_radius, -blur_radius, blur_radius * 2, blur_radius * 2);
         rect_ = {
             rect.x() * scale - blur_radius_,
@@ -37,7 +37,7 @@ public:
 #ifdef QT_DEBUG
                 img.save("capture.png");
 #endif
-                pixmap = this->blur_image(QPixmap::fromImage(img), blur_radius_);
+                pixmap = blur_image(QPixmap::fromImage(img), blur_radius_);
                 break;
             }
         default:
@@ -55,12 +55,15 @@ public:
         painter->drawPixmap(offset, sourcePixmap(Qt::LogicalCoordinates, &offset));
     }
     void set_blur_radius(const double r) {
-        this->blur_radius_ = r;
+        blur_radius_ = r;
     }
 private:
      QPixmap blur_image(const QPixmap& source_pixmap, double radius) {
          if (radius == 0) {
              return source_pixmap;
+         }
+         if (!first_time_ && source_pixmap.size() != res_pixmap_size_) {
+             set_pixmap_size(source_pixmap.size());
          }
          if (first_time_) {
              if (!graphics_blur_effect_) graphics_blur_effect_ = new QGraphicsBlurEffect();
@@ -83,10 +86,26 @@ private:
          if (!res_pixmap_->save("blur_capture.png")) {
              qWarning() << "pixmap saved error!";
          }
-         res_pixmap_->copy(QRectF(blur_radius_, blur_radius_, rect_.width() - blur_radius_ * 2, rect_.height() - blur_radius_ * 2).toRect()).save("after_copy.png");
+         res_pixmap_->copy(QRectF(blur_radius_, blur_radius_, source_pixmap.width() - blur_radius_ * 2, source_pixmap.height() - blur_radius_ * 2).toRect()).save("after_copy.png");
 #endif
-         return res_pixmap_->copy(QRectF(blur_radius_, blur_radius_, rect_.width() - blur_radius_ * 2, rect_.height() - blur_radius_ * 2).toRect());
+         return res_pixmap_->copy(QRectF(blur_radius_, blur_radius_, source_pixmap.width() - blur_radius_ * 2, source_pixmap.height() - blur_radius_ * 2).toRect());
     }
+
+    void set_pixmap_size(const QSize& size) {
+         if (painter_) {
+             delete painter_;
+             painter_ = nullptr;
+         }
+         if (res_pixmap_) {
+             delete res_pixmap_;
+             res_pixmap_ = new QPixmap(size);
+             painter_ = new QPainter(res_pixmap_);
+             painter_->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
+             painter_->setCompositionMode(QPainter::CompositionMode_Source);
+         } else {
+             qWarning() << "new res_pixmap_ first";
+         }
+     }
 
     template<typename T>
     void delete_pointer(T p) {
@@ -106,5 +125,6 @@ private:
     QPixmap* res_pixmap_ = nullptr;
     QPainter* painter_ = nullptr;
     QRectF rect_;
+    QSize res_pixmap_size_;
 };
 

@@ -21,6 +21,7 @@ protected:
         if (event->key() == Qt::Key_Left) newPos.setX(newPos.x() - 10);
         if (event->key() == Qt::Key_Right) newPos.setX(newPos.x() + 10);
         this->move(newPos);
+        this->setFixedSize(this->width() + 1, this->height() + 1);
     }
 private:
     bool is_pressed = false;
