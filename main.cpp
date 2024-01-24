@@ -11,7 +11,7 @@ int main(int argc, char *argv[]) {
 
     QLabel *backgroundLabel = new QLabel(&w);
     backgroundLabel->setScaledContents(true);
-    backgroundLabel->setPixmap(QPixmap(":/res/DSC02890.jpg"));
+    backgroundLabel->setPixmap(QPixmap(":/res/test_img.jpg"));
     backgroundLabel->setGeometry(10, 10, w.width(), w.height());
 
     DragMoveWidget *transparentWidget = new DragMoveWidget(backgroundLabel);
@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
     pal.setColor(QPalette::Window, Qt::transparent);
     transparentWidget->setPalette(pal);
     transparentWidget->setAutoFillBackground(true);
-    transparentWidget->setText("菜就多练！");
+    transparentWidget->setText("Press arrow key\n to move me!");
     transparentWidget->setGeometry(300, 200, 100, 100);
 
     BlurEffect *effect = new BlurEffect();
